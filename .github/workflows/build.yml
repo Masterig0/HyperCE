@@ -15,24 +15,25 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
       
-      - name: Setup Windows SDK and WDK
+      - name: Install WDK and SDK
         shell: pwsh
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force
           [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
           iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
           
-          choco install windows-driver-kit -y --version 10.0.22621.2428
+          choco install windowsdriverkit10 -y
           
-          choco install windows-sdk-10-version-2104-all -y
-      
-      - name: Build Driver
+      - name: Setup Environment and Build
         shell: cmd
         run: |
+          # Настраиваем Visual Studio окружение
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          call "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\SetEnv.cmd" /release /x64 /win10
           
-          msbuild hv.sln /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.22621.0
+          set WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10
+          set WindowsSdkVersion=10.0.20348.0
+          
+          msbuild hv.sln /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.20348.0 /p:UseDebugLibraries=false /p:OutDir=output\
           
       - name: Upload Driver
         uses: actions/upload-artifact@v4
@@ -40,4 +41,5 @@ jobs:
           name: HyperCE-Driver
           path: |
             **/*.sys
+            **/output/*.sys
             **/*.exe
