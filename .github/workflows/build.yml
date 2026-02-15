@@ -27,7 +27,6 @@ jobs:
       - name: Setup Environment and Build
         shell: cmd
         run: |
-          # Настраиваем Visual Studio окружение
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           
           set WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10
